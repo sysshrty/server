@@ -15,13 +15,24 @@ app.use(bodyParser.json());
 // Multer setup for file upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Directory to store uploaded files
+        cb(null, 'images/'); // Directory to store uploaded files
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname); // Filename for the uploaded file
     }
 });
 const upload = multer({ storage: storage });
+
+const validateComment = (comment) => {
+    const schema = Joi.object({
+        firstName: Joi.string().min(3).required(),
+        lastName: Joi.string().min(3).required(),
+        email: Joi.string().min(3).required().email(),
+        message: Joi.string().required(),
+        date: Joi.date().iso().default(Date.now, 'current date') 
+    });
+    return schema.validate(comment);
+};
 
 mongoose.connect("mongodb+srv://sbegay:shryb101@final-project.jyx9hkv.mongodb.net/?retryWrites=true&w=majority&appName=Final-project")
     .then(() => console.log('Connected to MongoDB'))
@@ -37,40 +48,43 @@ const commentSchema = new mongoose.Schema({
 });
 const Comment = mongoose.model("Comment", commentSchema);
 
-// Handle client comment submissions
+//client comment submissions
 app.post("/api/comments", async (req, res) => {
-    const { firstName, lastName, email, message } = req.body;
-    const newComment = new Comment({
-        firstName,
-        lastName,
-        email,
-        message,
-        date: Date.now() // Adding the current date when creating a new comment
-    });
     try {
+        const { error } = validateComment(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
+
+        const existingComment = await Comment.findOne({
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            message: req.body.message
+        });
+        if (existingComment) {
+            return res.status(400).send("Duplicate comment detected.");
+        }
+        const { firstName, lastName, email, message } = req.body;
+        const newComment = new Comment({
+            firstName,
+            lastName,
+            email,
+            message,
+            date: Date.now()
+        });
         const result = await newComment.save();
-        const comments = await Comment.find(); // Retrieve all comments after adding the new one
-        res.status(200).send(comments); // Return all comments
+        const comments = await Comment.find(); 
+        res.status(200).send(comments); 
     } catch (error) {
         console.error('Error saving comment:', error);
-        res.status(400).send("Internal server error.");
+        res.status(500).send("Internal server error.");
     }
 });
 
-const validateComment = (comment) => {
-    const schema = Joi.object({
-        firstName: Joi.string().min(3).required(),
-        lastName: Joi.string().min(3).required(),
-        email: Joi.string().min(3).required().email(),
-        message: Joi.string().required(),
-        date: Joi.date().iso().default(Date.now, 'current date') 
-    });
-    return schema.validate(comment);
-};
 
-// Serve static files (like script.js) from the public directory
-app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2/public')));
-
+// Routes
+app.get("/", (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+  });
 // Get all comments
 app.get("/api/comments", async (req, res) => {
     try {
