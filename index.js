@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const path = require('path'); // Import the path module
 
 app.use(express.static("public"));
 app.use(express.json());
@@ -22,12 +23,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// MongoDB connection setup
 mongoose.connect("mongodb+srv://sbegay:shryb101@final-project.jyx9hkv.mongodb.net/?retryWrites=true&w=majority&appName=Final-project")
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.log('Error connecting to MongoDB:', err));
 
-// schema & Model setup (Client's comment)
+// Schema & Model setup (Client's comment)
 const commentSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
@@ -37,7 +37,7 @@ const commentSchema = new mongoose.Schema({
 });
 const Comment = mongoose.model("Comment", commentSchema);
 
-// handle client comment submissions
+// Handle client comment submissions
 app.post("/api/comments", async (req, res) => {
     const { firstName, lastName, email, message } = req.body;
     const newComment = new Comment({
@@ -66,17 +66,10 @@ const validateComment = (comment) => {
         date: Joi.date().iso().default(Date.now, 'current date') 
     });
     return schema.validate(comment);
-}
+};
 
-// (like script.js) from the public directory
-//app.use(express.static(path.join(__dirname, '../https://github.com/sysshrty/server')));
-
-// Serve index.html
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/review.html");
-});
-
-
+// Serve static files (like script.js) from the public directory
+app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2/public')));
 
 // Get all comments
 app.get("/api/comments", async (req, res) => {
@@ -88,79 +81,8 @@ app.get("/api/comments", async (req, res) => {
         res.status(500).send("Error fetching comments.");
     }
 });
-const submitEvent = (e) => {
-    e.preventDefault();
-  
-    const form = document.getElementById("my-form");
-    const firstName = form.elements["txt-first-name"].value;
-    const lastName = form.elements["txt-last-name"].value;
-    const date = form.elements["time-date"].value;
-    const theme = form.elements["type-theme"].value;
-    const address = form.elements["address"].value;
-    const guest = form.elements["quantity"].value;
-    const email = form.elements["email"].value;
-  
-    // Retrieve the uploaded image file
-    const imageFile = document.getElementById("image-upload").files[0];
-  
-    // Create a FormData object to send both form data and image file
-    const formData = new FormData();
-    formData.append("image", imageFile);
-    formData.append("first-name", firstName);
-    formData.append("last-name", lastName);
-    formData.append("date", date);
-    formData.append("theme", theme);
-    formData.append("address", address);
-    formData.append("quantity", guest);
-    formData.append("email", email);
-  
-    // Make a fetch request to your backend, sending formData
-    fetch("/api/bookings", {
-      method: "POST",
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      // Handle success response
-      console.log("Booking created:", data);
-      // Display success message or handle redirection
-    })
-    .catch(error => {
-      // Handle error
-      console.error("Error creating booking:", error);
-      // Display error message to the user
-    });
-  };
-  app.post("/api/bookings", upload.single("image"), async (req, res) => {
-    try {
-      // Validate booking data
-      const { error } = validateBooking(req.body);
-      if (error) return res.status(400).send(error.details[0].message);
-  
-      // Check if image file exists
-      if (!req.file) return res.status(400).send("No Image File Found");
-  
-      // Create a new booking document
-      const booking = new Booking({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        date: req.body.date,
-        theme: req.body.theme,
-        address: req.body.address,
-        guest: req.body.guest,
-        email: req.body.email,
-        image: req.file.filename // Save image filename to database
-      });
-  
-      // Save the booking to the database
-      await booking.save();
-  
-      res.send(booking);
-    } catch (error) {
-      res.status(500).send("Internal server error");
-    }
-  });
 
 app.listen(3000, () => {
-	console.log("listening...");
+    console.log("listening...");
 });
+
