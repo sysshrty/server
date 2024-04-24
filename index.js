@@ -76,7 +76,7 @@ app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project
 
 // index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, '../sysshrty.github.io/final-project2/public/index.html'));
+  res.sendFile(path.join(__dirname, '../sysshrty.github.io/final-project2/public/review.html'));
 });
 
 
