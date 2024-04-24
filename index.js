@@ -26,11 +26,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // MongoDB connection setup
-mongoose.connect("mongodb+srv://sbegay:shryb101@finalproject242.nrojfty.mongodb.net/?retryWrites=true&w=majority&appName=Finalproject242", { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect("mongodb+srv://sbegay:shryb101@final-project.jyx9hkv.mongodb.net/?retryWrites=true&w=majority&appName=Final-project")
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.log('Error connecting to MongoDB:', err));
 
-// Schema and Model setup (Client's comment)
+// schema & Model setup (Client's comment)
 const commentSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
@@ -40,7 +40,7 @@ const commentSchema = new mongoose.Schema({
 });
 const Comment = mongoose.model("Comment", commentSchema);
 
-// Handle client comment submissions
+// handle client comment submissions
 app.post("/api/comments", async (req, res) => {
     const { firstName, lastName, email, message } = req.body;
     const newComment = new Comment({
@@ -72,7 +72,7 @@ const validateComment = (comment) => {
 }
 
 // frontend files
-app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2')));
+app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2/public')));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
