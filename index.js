@@ -71,12 +71,14 @@ const validateComment = (comment) => {
     return schema.validate(comment);
 }
 
-// frontend files
+// script.js from the public directory
 app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2/public')));
 
+// index.html
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.sendFile(path.join(__dirname, '../sysshrty.github.io/final-project2/public/index.html'));
 });
+
 
 
 // Get all comments
