@@ -5,9 +5,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser');
 const multer = require('multer');
-const path = require('path');
-
-const port = 3000;
 
 app.use(express.static("public"));
 app.use(express.json());
@@ -71,12 +68,12 @@ const validateComment = (comment) => {
     return schema.validate(comment);
 }
 
-// script.js from the public directory
-app.use(express.static(path.join(__dirname, '../sysshrty.github.io/final-project2/public')));
+// (like script.js) from the public directory
+//app.use(express.static(path.join(__dirname, '../https://github.com/sysshrty/server')));
 
-// index.html
+// Serve index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, '../sysshrty.github.io/final-project2/public/review.html'));
+  res.sendFile(__dirname + "/review.html");
 });
 
 
